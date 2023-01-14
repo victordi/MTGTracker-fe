@@ -1,12 +1,21 @@
-import React, { FC, ReactElement } from 'react';
+import React, {FC, ReactElement} from 'react';
 import '../App.css'
+import {Link} from "react-router-dom";
+import {navStyle} from "../constants";
 
 const Nav: FC = (): ReactElement => {
     return (
         <nav className="nav">
             <ul className="nav-links">
-                <li>Seasons</li>
-                <li>Players</li>
+                <Link style={navStyle} to={"/"}>
+                    <li>Home</li>
+                </Link>
+                <Link style={navStyle} to={"/seasons"}>
+                    <li>Seasons</li>
+                </Link>
+                <Link style={navStyle} to={"/seasons"}>
+                    <li>Players</li>
+                </Link>
             </ul>
         </nav>
     )
