@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import PrivateRoute from "./components/PrivateRoute";
 import SeasonDetails from "./pages/SeasonDetails";
+import CreateSeason from "./pages/CreateSeason";
 
 const App: FC = (): ReactElement => {
     return (
@@ -20,6 +21,7 @@ const App: FC = (): ReactElement => {
                     <Route path="/login" element={<Login/>}/>
                     <Route path="/seasons" element={<PrivateRoute outlet={<Seasons/>}/>}/>
                     <Route path="/seasons/:id" element={<PrivateRoute outlet={<SeasonDetails/>}/>}/>
+                    <Route path="/seasons/create" element={<PrivateRoute outlet={<CreateSeason/>}/>}/>
                 </Routes>
             </Router>
         </ThemeProvider>)

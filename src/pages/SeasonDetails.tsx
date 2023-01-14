@@ -1,10 +1,11 @@
 import React, {ReactElement, useEffect, useState} from 'react';
 import '../App.css'
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
-import {API_URL, AT_STORAGE} from "../constants";
+import {API_URL, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
 import JSONPretty from "react-json-pretty";
+import {Button} from "@mui/material";
 
 type Season = {
     id: number
@@ -24,10 +25,11 @@ type Stats = {
     avgCommanderKills: number
 }
 
-type SeasonStats = { first: string, second: {avgStats: Stats, deckStats: { deckName: string, stats: Stats}[]}}[]
+type SeasonStats = { first: string, second: { avgStats: Stats, deckStats: { deckName: string, stats: Stats }[] } }[]
 
 export default function SeasonDetails(): ReactElement {
-    const { id } = useParams()
+    const {id} = useParams()
+    const navigation = useNavigate()
 
     useEffect(() => {
         fetchSeason().then();
@@ -47,11 +49,7 @@ export default function SeasonDetails(): ReactElement {
         )
             .then((result) => result.data.data)
             .catch((reason) => {
-                if (reason.response.status == 401) {
-                    console.log("Failed auth -> cleaning localStorage")
-                    localStorage.removeItem(AT_STORAGE)
-                }
-                return []
+                if (reason.response.status == 401) refreshLogin()
             })
         setSeason(data)
 
@@ -65,13 +63,25 @@ export default function SeasonDetails(): ReactElement {
         )
             .then((result) => result.data.data)
             .catch((reason) => {
-                if (reason.response.status == 401) {
-                    console.log("Failed auth -> cleaning localStorage")
-                    localStorage.removeItem(AT_STORAGE)
-                }
-                return "{}"
+                if (reason.response.status == 401) refreshLogin()
             })
         setSeasonStats(stats)
+    }
+
+    const deleteSeason = async () => {
+        await axios.delete(
+            API_URL + `seasons/${id}`,
+            {
+                headers: {
+                    Authorization: AuthService.loggedUserAT()
+                }
+            }
+        )
+            .catch((reason) => {
+                if (reason.response.status == 401) refreshLogin()
+                else alert("Failed to delete season: " + reason)
+            })
+        navigation("/seasons")
     }
 
     return (
@@ -87,6 +97,7 @@ export default function SeasonDetails(): ReactElement {
                     <JSONPretty key={1} data={pair.second}/>
                 </h3>
             )}
+            <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
         </div>
     )
 }

@@ -5,3 +5,9 @@ export const navStyle = {
     color: 'red',
     textDecoration: 'none'
 } as const;
+
+export const refreshLogin = () => {
+    console.log("Failed auth -> cleaning localStorage")
+    localStorage.removeItem(AT_STORAGE)
+    window.location.reload()
+}

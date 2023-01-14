@@ -14,26 +14,26 @@ export default function Login() {
     const navigate = useNavigate()
     return (
         <ThemeProvider theme={customTheme}>
-            <CssBaseline />
+            <CssBaseline/>
             <Formik
-                initialValues = {initialValues}
-                onSubmit = { async formValue => {
+                initialValues={initialValues}
+                onSubmit={async formValue => {
                     const logged = await AuthService.login(formValue.username, formValue.password)
                     if (logged) navigate("/")
                     else alert("Invalid login credentials try again")
-                } }
+                }}
             >
                 <Form>
                     <div>
                         <label htmlFor="username">Username</label>
-                        <Field name="username" type="text" />
-                        <ErrorMessage name="username" component="div" />
+                        <Field name="username" type="text"/>
+                        <ErrorMessage name="username" component="div"/>
                     </div>
 
                     <div>
                         <label htmlFor="password">Password</label>
-                        <Field name="password" type="password" />
-                        <ErrorMessage name="password" component="div" />
+                        <Field name="password" type="password"/>
+                        <ErrorMessage name="password" component="div"/>
                     </div>
 
                     <div>
@@ -42,7 +42,7 @@ export default function Login() {
                         </button>
                     </div>
                 </Form>
-        </Formik>
+            </Formik>
         </ThemeProvider>
     )
 }
