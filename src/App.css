@@ -14,7 +14,7 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #0050f3;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -42,8 +42,8 @@
   justify-content: space-around;
   align-items: center;
   min-height: 10vh;
-  background: #173a60;
-  color: white;
+  background: #000000;
+  color: #000000;
 }
 
 .nav-links {
@@ -53,4 +53,8 @@
   align-items: center;
   list-style: none;
   color: #7dc07e;
+}
+
+.tableHead {
+  background-color: #ecec0b;
 }

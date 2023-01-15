@@ -13,7 +13,7 @@ const Nav: FC = (): ReactElement => {
                 <Link style={navStyle} to={"/seasons"}>
                     <li>Seasons</li>
                 </Link>
-                <Link style={navStyle} to={"/seasons"}>
+                <Link style={navStyle} to={"/players"}>
                     <li>Players</li>
                 </Link>
             </ul>

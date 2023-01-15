@@ -56,7 +56,6 @@ export default function CreateSeason(): ReactElement {
         else alert("Invalid fields")
     };
 
-
     const fetchPlayers = async () => {
         const data: Player[] = await axios.get(
             API_URL + "players",
