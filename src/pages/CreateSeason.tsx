@@ -1,8 +1,8 @@
-import React, {FormEvent, ReactElement, useEffect, useState} from "react";
+import React, {ChangeEvent, FormEvent, ReactElement, useEffect, useState} from "react";
 import axios from "axios";
 import {API_URL, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
-import {Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack} from "@mui/material";
+import {Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 
 type Player = {
@@ -14,7 +14,15 @@ const initialValues = {
     player1: "",
     player2: "",
     player3: "",
-    player4: ""
+    player4: "",
+    firstPlace: 4,
+    secondPlace: 2,
+    thirdPlace: 1,
+    fourthPlace: 0,
+    kill: 2,
+    commanderKill: 1,
+    infinite: 2,
+    bodyGuard: 1
 }
 
 export default function CreateSeason(): ReactElement {
@@ -28,7 +36,7 @@ export default function CreateSeason(): ReactElement {
 
     const navigation = useNavigate()
 
-    const handleInputChange = (e: SelectChangeEvent) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
         const { name, value } = e.target;
         setFormValues({
             ...formValues,
@@ -38,9 +46,25 @@ export default function CreateSeason(): ReactElement {
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault()
+        const body = {
+            player1: formValues.player1,
+            player2: formValues.player2,
+            player3: formValues.player3,
+            player4: formValues.player4,
+            pointSystem: {
+                firstPlace: formValues.firstPlace,
+                secondPlace: formValues.secondPlace,
+                thirdPlace: formValues.thirdPlace,
+                fourthPlace: formValues.fourthPlace,
+                kill: formValues.kill,
+                commanderKill: formValues.commanderKill,
+                infinite: formValues.infinite,
+                bodyGuard: formValues.bodyGuard
+            }
+        }
         const id: number = await axios.post(
             API_URL + "seasons",
-            formValues,
+            body,
             {
                 headers: {
                     Authorization: AuthService.loggedUserAT()
@@ -90,6 +114,19 @@ export default function CreateSeason(): ReactElement {
         )
     }
 
+    const textField = (player: string, value: number) => {
+        return (
+            <TextField
+                id={player}
+                name={player}
+                label={player}
+                type="number"
+                value={value}
+                onChange={handleInputChange}
+            />
+        )
+    }
+
     return (
         <form onSubmit={handleSubmit}>
             <Stack spacing={2}>
@@ -97,6 +134,15 @@ export default function CreateSeason(): ReactElement {
                 { selectForm("player2", formValues.player2) }
                 { selectForm("player3", formValues.player3) }
                 { selectForm("player4", formValues.player4) }
+                { textField("firstPlace", formValues.firstPlace) }
+                { textField("secondPlace", formValues.secondPlace) }
+                { textField("thirdPlace", formValues.thirdPlace) }
+                { textField("fourthPlace", formValues.fourthPlace) }
+                { textField("kill", formValues.kill) }
+                { textField("commanderKill", formValues.commanderKill) }
+                { textField("infinite", formValues.infinite) }
+                { textField("bodyGuard", formValues.bodyGuard) }
+
                 <Button variant="contained" color="primary" type="submit">
                     Create Seasons
                 </Button>

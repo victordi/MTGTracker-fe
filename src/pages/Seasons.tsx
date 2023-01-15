@@ -33,7 +33,7 @@ function Seasons(): ReactElement {
         <div>
             {seasons.map((season) =>
                 <h2 key={season.id}>
-                    <Link style={navStyle} to={`/seasons/${season.id}`}>Season{season.id}</Link>
+                    <Link style={navStyle} to={`/seasons/${season.id}`}>Season {seasons.indexOf(season) + 1}</Link>
                 </h2>
             )}
             <Link style={navStyle} to={`/seasons/create`}>
