@@ -6,7 +6,7 @@ import {API_URL, navStyle, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
 import JSONPretty from "react-json-pretty";
 import {Button} from "@mui/material";
-import {SeasonStats} from "../components/StatsTable";
+import StatsTable, {SeasonStats, StatsRow, toStatsRow} from "../components/StatsTable";
 
 type Season = {
     id: number
@@ -70,6 +70,17 @@ export default function SeasonDetails(): ReactElement {
         navigation("/seasons")
     }
 
+    const prepareStats = (): StatsRow[] => {
+        const response: StatsRow[] = []
+        seasonStats.map((playerStats) => {
+            response.push(toStatsRow(playerStats.second.avgStats, playerStats.first))
+            playerStats.second.deckStats.map((deckStat) =>
+                response.push(toStatsRow(deckStat.stats, `${playerStats.first} | ${deckStat.deckName}`))
+            )
+        })
+        return response
+    }
+
     return (
         <div>
             <h1>Season {id}</h1>
@@ -85,12 +96,7 @@ export default function SeasonDetails(): ReactElement {
                 <h2 key={player.first}>{player.first} with {player.second} points.</h2>
             )}
             <h1>Stats</h1>
-            {seasonStats.map((pair) =>
-                <h3 key={pair.first}>
-                    Player: {pair.first}
-                    <JSONPretty key={1} data={pair.second}/>
-                </h3>
-            )}
+            {StatsTable(prepareStats())}
             <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
         </div>
     )
