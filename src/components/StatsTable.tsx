@@ -137,6 +137,7 @@ export default function StatsTable(stats: StatsRow[]): ReactElement {
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
+                    rowsPerPageOptions={[rowsPerPage]}
                 />
             </Paper>
         </div>

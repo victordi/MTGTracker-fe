@@ -157,6 +157,7 @@ export default function GameResults(): ReactElement {
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
+                    rowsPerPageOptions={[rowsPerPage]}
                 />
             </Paper>
         </div>
