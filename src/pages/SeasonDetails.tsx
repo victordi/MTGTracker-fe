@@ -6,31 +6,12 @@ import {API_URL, navStyle, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
 import JSONPretty from "react-json-pretty";
 import {Button} from "@mui/material";
+import {SeasonStats} from "../components/StatsTable";
 
 type Season = {
     id: number
     players: { first: string, second: number }[]
 }
-
-export type Stats = {
-    gamesPlayed: number,
-    gamesWon: number,
-    gamesWonWhenFirst: number,
-    gamesWonWhenSecond: number,
-    gamesWonWhenThird: number,
-    gamesWonWhenFourth: number,
-    gamesWonWithInfinite: number,
-    avgPlace: number,
-    avgKills: number,
-    avgCommanderKills: number
-}
-
-export type DeckStats = {
-    deckName: string,
-    stats: Stats
-}
-
-type SeasonStats = { first: string, second: { avgStats: Stats, deckStats: DeckStats[] } }[]
 
 export default function SeasonDetails(): ReactElement {
     const {id} = useParams()

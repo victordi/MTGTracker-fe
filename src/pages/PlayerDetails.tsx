@@ -4,17 +4,16 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import {API_URL, navStyle, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
-import JSONPretty from "react-json-pretty";
 import {Button, Stack,} from "@mui/material";
 import {Player} from "./Players";
-import {DeckStats, Stats} from "./SeasonDetails";
+import StatsTable, {Stats, DeckStats, StatsRow, EMPTY_STATS, toStatsRow} from "../components/StatsTable";
 
 type PlayerStats = {
     playerName: string,
     avgDeckStats: DeckStats[],
-    avgStats: Stats[],
-    deckStatsPerSeason: { first: number, second: DeckStats[]}[],
-    statsPerSeason: { first: number, second: Stats[]}[]
+    avgStats: Stats,
+    deckStatsPerSeason: { first: number, second: DeckStats[] }[],
+    statsPerSeason: { first: number, second: Stats }[]
 }
 
 export default function PlayerDetails(): ReactElement {
@@ -24,10 +23,34 @@ export default function PlayerDetails(): ReactElement {
     useEffect(() => {
         fetchPlayer().then();
         fetchPlayerStats().then();
+        fetchSeasons().then()
     }, []);
 
     const [player, setPlayer] = useState<Player>({name: "", decks: []});
-    const [playerStats, setPlayerStats] = useState<PlayerStats>({playerName: "", avgDeckStats: [], avgStats: [], deckStatsPerSeason: [], statsPerSeason: []});
+    const [playerStats, setPlayerStats] = useState<PlayerStats>({
+        playerName: "",
+        avgDeckStats: [],
+        avgStats: EMPTY_STATS,
+        deckStatsPerSeason: [],
+        statsPerSeason: []
+    });
+    const [seasons, setSeasons] = useState<number[]>([]);
+
+    const fetchSeasons = async () => {
+        const data: { id: number }[] = await axios.get(
+            API_URL + "seasons",
+            {
+                headers: {
+                    Authorization: AuthService.loggedUserAT()
+                }
+            }
+        )
+            .then((result) => result.data.data)
+            .catch((reason) => {
+                if (reason.response.status == 401) refreshLogin()
+            })
+        setSeasons(data.map((it) => it.id))
+    }
 
     const fetchPlayer = async () => {
         const data: Player = await axios.get(
@@ -62,7 +85,7 @@ export default function PlayerDetails(): ReactElement {
         setPlayerStats(data)
     }
 
-    const promote = async (deck: { name: string, tier: string}) => {
+    const promote = async (deck: { name: string, tier: string }) => {
         await axios.patch(
             API_URL + `players/${name}/decks`,
             {
@@ -83,7 +106,7 @@ export default function PlayerDetails(): ReactElement {
         window.location.reload()
     }
 
-    const demote = async (deck: { name: string, tier: string}) => {
+    const demote = async (deck: { name: string, tier: string }) => {
         await axios.patch(
             API_URL + `players/${name}/decks`,
             {
@@ -128,13 +151,34 @@ export default function PlayerDetails(): ReactElement {
                 }
             }
         )
-            .then(() => { return false })
+            .then(() => {
+                return false
+            })
             .catch((reason) => {
                 if (reason.response.status == 401) refreshLogin()
                 else alert("Delete failed")
                 return true
             })
         if (!failed) navigation("/players")
+    }
+
+    const prepareStats = (): StatsRow[] => {
+        const response: StatsRow[] = []
+        response.push(toStatsRow(playerStats.avgStats, "Total"))
+        playerStats.avgDeckStats
+            .map((deckStats) => response.push(toStatsRow(deckStats.stats, deckStats.deckName)))
+        playerStats.statsPerSeason
+            .map((seasonStats) =>
+                response.push(toStatsRow(seasonStats.second, `Season ${seasons.indexOf(seasonStats.first) + 1}`))
+            )
+        playerStats.deckStatsPerSeason.map((stats) => {
+                const seasonNumber = seasons.indexOf(stats.first) + 1
+                stats.second.map((deckStats) =>
+                    response.push(toStatsRow(deckStats.stats, `Season ${seasonNumber} | ${deckStats.deckName}`))
+                )
+            }
+        )
+        return response
     }
 
     return (
@@ -157,8 +201,9 @@ export default function PlayerDetails(): ReactElement {
                     <Button variant="contained">Create Deck</Button>
                 </Link>
                 <Button variant="contained" onClick={removePlayer}>Delete Player</Button>
+                <Button variant="contained" onClick={prepareStats}>Log Stats</Button>
             </Stack>
-            <JSONPretty key={1} data={playerStats}/>
+            {StatsTable(prepareStats())}
         </div>
     )
 }
