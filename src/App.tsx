@@ -15,28 +15,32 @@ import CreateDeck from "./pages/CreateDeck";
 import CreatePlayer from "./pages/CreatePlayer";
 import ReportGame from "./pages/ReportGame";
 import GameResults from "./pages/GameResults";
+import {ConfirmProvider} from "material-ui-confirm";
 
 const App: FC = (): ReactElement => {
     return (
-        <ThemeProvider theme={customTheme}>
-            <CssBaseline/>
-            <Router>
-                <Nav/>
-                <Routes>
-                    <Route path="/" element={<Home/>}/>
-                    <Route path="/login" element={<Login/>}/>
-                    <Route path="/seasons" element={<PrivateRoute outlet={<Seasons/>}/>}/>
-                    <Route path="/seasons/:id" element={<PrivateRoute outlet={<SeasonDetails/>}/>}/>
-                    <Route path="/seasons/:id/games" element={<PrivateRoute outlet={<GameResults/>}/>}/>
-                    <Route path="/seasons/:id/reportGame" element={<PrivateRoute outlet={<ReportGame/>}/>}/>
-                    <Route path="/seasons/create" element={<PrivateRoute outlet={<CreateSeason/>}/>}/>
-                    <Route path="/players" element={<PrivateRoute outlet={<Players/>}/>}/>
-                    <Route path="/players/create" element={<PrivateRoute outlet={<CreatePlayer/>}/>}/>
-                    <Route path="/players/:name" element={<PrivateRoute outlet={<PlayerDetails/>}/>}/>
-                    <Route path="/players/:name/createDeck" element={<PrivateRoute outlet={<CreateDeck/>}/>}/>
-                </Routes>
-            </Router>
-        </ThemeProvider>
+        <ConfirmProvider>
+            <ThemeProvider theme={customTheme}>
+                    <CssBaseline/>
+                    <Router>
+                        <Nav/>
+                        <Routes>
+                            <Route path="/" element={<Home/>}/>
+                            <Route path="/login" element={<Login/>}/>
+                            <Route path="/seasons" element={<PrivateRoute outlet={<Seasons/>}/>}/>
+                            <Route path="/seasons/:id" element={<PrivateRoute outlet={<SeasonDetails/>}/>}/>
+                            <Route path="/seasons/:id/games" element={<PrivateRoute outlet={<GameResults/>}/>}/>
+                            <Route path="/seasons/:id/reportGame" element={<PrivateRoute outlet={<ReportGame/>}/>}/>
+                            <Route path="/seasons/create" element={<PrivateRoute outlet={<CreateSeason/>}/>}/>
+                            <Route path="/players" element={<PrivateRoute outlet={<Players/>}/>}/>
+                            <Route path="/players/create" element={<PrivateRoute outlet={<CreatePlayer/>}/>}/>
+                            <Route path="/players/:name" element={<PrivateRoute outlet={<PlayerDetails/>}/>}/>
+                            <Route path="/players/:name/createDeck" element={<PrivateRoute outlet={<CreateDeck/>}/>}/>
+                        </Routes>
+                    </Router>
+            </ThemeProvider>
+        </ConfirmProvider>
+
     )
 };
 

@@ -7,6 +7,7 @@ import AuthService from "../service/auth-service";
 import JSONPretty from "react-json-pretty";
 import {Button} from "@mui/material";
 import StatsTable, {SeasonStats, StatsRow, toStatsRow} from "../components/StatsTable";
+import {useConfirm} from "material-ui-confirm";
 
 type Season = {
     id: number
@@ -16,6 +17,7 @@ type Season = {
 export default function SeasonDetails(): ReactElement {
     const {id} = useParams()
     const navigation = useNavigate()
+    const confirm = useConfirm()
 
     useEffect(() => {
         fetchSeason().then();
@@ -55,19 +57,22 @@ export default function SeasonDetails(): ReactElement {
     }
 
     const deleteSeason = async () => {
-        await axios.delete(
-            API_URL + `seasons/${id}`,
-            {
-                headers: {
-                    Authorization: AuthService.loggedUserAT()
-                }
-            }
-        )
-            .catch((reason) => {
-                if (reason.response.status == 401) refreshLogin()
-                else alert("Failed to delete season: " + reason)
+        confirm({description: `Are you sure you want to delete this season?`})
+            .then(async () => {
+                await axios.delete(
+                    API_URL + `seasons/${id}`,
+                    {
+                        headers: {
+                            Authorization: AuthService.loggedUserAT()
+                        }
+                    }
+                )
+                    .catch((reason) => {
+                        if (reason.response.status == 401) refreshLogin()
+                        else alert("Failed to delete season: " + reason)
+                    })
+                navigation("/seasons")
             })
-        navigation("/seasons")
     }
 
     const prepareStats = (): StatsRow[] => {

@@ -7,6 +7,7 @@ import AuthService from "../service/auth-service";
 import {Button, Stack,} from "@mui/material";
 import {Player} from "./Players";
 import StatsTable, {Stats, DeckStats, StatsRow, EMPTY_STATS, toStatsRow} from "../components/StatsTable";
+import {useConfirm} from "material-ui-confirm";
 
 type PlayerStats = {
     playerName: string,
@@ -19,6 +20,7 @@ type PlayerStats = {
 export default function PlayerDetails(): ReactElement {
     const {name} = useParams()
     const navigation = useNavigate()
+    const confirm = useConfirm()
 
     useEffect(() => {
         fetchPlayer().then();
@@ -127,39 +129,45 @@ export default function PlayerDetails(): ReactElement {
     }
 
     const remove = async (deckName: string) => {
-        await axios.delete(
-            API_URL + `players/${name}/decks/${deckName}`,
-            {
-                headers: {
-                    Authorization: AuthService.loggedUserAT()
-                }
-            }
-        )
-            .then(() => window.location.reload())
-            .catch((reason) => {
-                if (reason.response.status == 401) refreshLogin()
-                else alert("Delete failed")
+        confirm({description: `Are you sure you want to delete deck: ${deckName}?`})
+            .then(async () => {
+                await axios.delete(
+                    API_URL + `players/${name}/decks/${deckName}`,
+                    {
+                        headers: {
+                            Authorization: AuthService.loggedUserAT()
+                        }
+                    }
+                )
+                    .then(() => window.location.reload())
+                    .catch((reason) => {
+                        if (reason.response.status == 401) refreshLogin()
+                        else alert("Delete failed")
+                    })
             })
     }
 
     const removePlayer = async () => {
-        const failed: boolean = await axios.delete(
-            API_URL + `players/${name}`,
-            {
-                headers: {
-                    Authorization: AuthService.loggedUserAT()
-                }
-            }
-        )
-            .then(() => {
-                return false
+        confirm({description: `Are you sure you want to delete player: ${name}`})
+            .then(async () => {
+                const failed: boolean = await axios.delete(
+                    API_URL + `players/${name}`,
+                    {
+                        headers: {
+                            Authorization: AuthService.loggedUserAT()
+                        }
+                    }
+                )
+                    .then(() => {
+                        return false
+                    })
+                    .catch((reason) => {
+                        if (reason.response.status == 401) refreshLogin()
+                        else alert("Delete failed")
+                        return true
+                    })
+                if (!failed) navigation("/players")
             })
-            .catch((reason) => {
-                if (reason.response.status == 401) refreshLogin()
-                else alert("Delete failed")
-                return true
-            })
-        if (!failed) navigation("/players")
     }
 
     const prepareStats = (): StatsRow[] => {

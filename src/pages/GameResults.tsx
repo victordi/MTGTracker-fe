@@ -15,6 +15,7 @@ import {
     TablePagination,
     TableRow
 } from "@mui/material";
+import {useConfirm} from "material-ui-confirm";
 
 interface Game {
     id: number,
@@ -54,6 +55,7 @@ const columns: readonly Column[] = [
 
 export default function GameResults(): ReactElement {
     const {id} = useParams()
+    const confirm = useConfirm()
 
     useEffect(() => {
         fetchGames().then();
@@ -83,21 +85,24 @@ export default function GameResults(): ReactElement {
     };
 
     const deleteGameResult = async (gameId: number) => {
-        const failed: boolean = await axios.delete(
-            API_URL + `seasons/${id}/results/${gameId}`,
-            {
-                headers: {
-                    Authorization: AuthService.loggedUserAT()
-                }
-            }
-        )
-            .then(() => false)
-            .catch((reason) => {
-                if (reason.response.status == 401) refreshLogin()
-                return true
+        confirm({description: `Are you sure you want to delete this game result?`})
+            .then(async () => {
+                const failed: boolean = await axios.delete(
+                    API_URL + `seasons/${id}/results/${gameId}`,
+                    {
+                        headers: {
+                            Authorization: AuthService.loggedUserAT()
+                        }
+                    }
+                )
+                    .then(() => false)
+                    .catch((reason) => {
+                        if (reason.response.status == 401) refreshLogin()
+                        return true
+                    })
+                if (failed) alert("Failed to delete game.")
+                else window.location.reload()
             })
-        if (failed) alert("Failed to delete game.")
-        else window.location.reload()
     }
 
     return (
