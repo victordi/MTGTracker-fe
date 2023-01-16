@@ -201,7 +201,6 @@ export default function PlayerDetails(): ReactElement {
                     <Button variant="contained">Create Deck</Button>
                 </Link>
                 <Button variant="contained" onClick={removePlayer}>Delete Player</Button>
-                <Button variant="contained" onClick={prepareStats}>Log Stats</Button>
             </Stack>
             {StatsTable(prepareStats())}
         </div>
