@@ -4,7 +4,6 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import {API_URL, navStyle, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
-import JSONPretty from "react-json-pretty";
 import {Button} from "@mui/material";
 import StatsTable, {SeasonStats, StatsRow, toStatsRow} from "../components/StatsTable";
 import {useConfirm} from "material-ui-confirm";
@@ -97,12 +96,13 @@ export default function SeasonDetails(): ReactElement {
             <Link style={navStyle} to={`/seasons/${id}/reportGame`}>
                 <Button variant="contained">Report Game Result</Button>
             </Link>
+            <br/>
+            <br/>
+            <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
             {season.players.map((player) =>
                 <h2 key={player.first}>{player.first} with {player.second} points.</h2>
             )}
-            <h1>Stats</h1>
             {StatsTable(prepareStats())}
-            <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
         </div>
     )
 }

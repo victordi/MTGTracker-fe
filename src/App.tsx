@@ -16,6 +16,7 @@ import CreatePlayer from "./pages/CreatePlayer";
 import ReportGame from "./pages/ReportGame";
 import GameResults from "./pages/GameResults";
 import {ConfirmProvider} from "material-ui-confirm";
+import './App.css'
 
 const App: FC = (): ReactElement => {
     return (
@@ -40,7 +41,6 @@ const App: FC = (): ReactElement => {
                     </Router>
             </ThemeProvider>
         </ConfirmProvider>
-
     )
 };
 

@@ -5,7 +5,7 @@ import {navStyle} from "../constants";
 
 const Nav: FC = (): ReactElement => {
     return (
-        <nav className="nav">
+        <nav>
             <ul className="nav-links">
                 <Link style={navStyle} to={"/"}>
                     <li>Home</li>
