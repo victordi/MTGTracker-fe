@@ -89,7 +89,7 @@ export default function StatsTable(stats: StatsRow[]): ReactElement {
     };
 
     return (
-        <div>
+        <div id="bottom-div">
             <br/>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
                 <TableContainer sx={{maxHeight: 840}}>

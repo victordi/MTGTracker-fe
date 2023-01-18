@@ -191,25 +191,29 @@ export default function PlayerDetails(): ReactElement {
 
     return (
         <div>
-            <h1 key={player.name}>
-                <Stack spacing={4}>
-                    <text>{player.name}</text>
-                    {player.decks.map((deck) =>
-                        <Stack key={`stack${deck.name}`} direction="row" spacing={6}>
-                            <text>{deck.name} with tier {deck.tier}</text>
+            <Stack spacing={4}>
+                <h1>{player.name}</h1>
+                {player.decks.map((deck) =>
+                    <h6 key={`stack${deck.name}`}>
+                        <Stack key={`stack${deck.name}`} direction="row" spacing={1}>
+                            <h2>{deck.name} with tier {deck.tier}</h2>
                             <Button variant="contained" onClick={() => promote(deck)}>Promote</Button>
                             <Button variant="contained" onClick={() => demote(deck)}>Demote</Button>
                             <Button variant="contained" onClick={() => remove(deck.name)}>Delete</Button>
                         </Stack>
-                    )}
-                </Stack>
-            </h1>
+                    </h6>
+                )}
+            </Stack>
+            <br/>
+            <br/>
+            <br/>
             <Stack direction="row" spacing={8}>
                 <Link style={navStyle} to={`/players/${name}/createDeck`}>
                     <Button variant="contained">Create Deck</Button>
                 </Link>
                 <Button variant="contained" onClick={removePlayer}>Delete Player</Button>
             </Stack>
+            <br/>
             {StatsTable(prepareStats())}
         </div>
     )

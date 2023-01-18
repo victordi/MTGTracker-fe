@@ -1,17 +1,30 @@
+@media only screen and (orientation: landscape) {
+    html, body, #app, #app>div  {
+        background-image: url("../public/background.jpeg");
+    }
+}
+
+@media only screen and (orientation: portrait) {
+    html, body, #app, #app>div {
+      background-image: url("../public/portrait.jpeg");
+    }
+}
+
 html, body, #app, #app>div {
   height: 100%;
   font-size: calc(2px + 2vmin);
-  background-image: url("../public/background.jpeg");
-  background-size: 100% 100%;
+  background-position-y: 10vh;
+  background-size: 100% 90%;
   width: 100%;
   justify-content: center;
 }
 
 nav {
   background-image: url("../public/background.png");
+  background-size: 20vh;
   display: flex;
   justify-content: space-around;
-  height: 10vh;
+  height: 10%;
 }
 
 .nav-links {
@@ -24,10 +37,33 @@ nav {
   font-size: 3vh;
 }
 
-.tableHead {
-  background-color: #ecec0b;
+input[type="color"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select:focus,
+textarea {
+  font-size: 16px;
 }
 
-li:hover{
-  font-size: 4vh;
+#bottom-div {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+img {
+    position: absolute;
+    margin: 1000px;
+    padding: 0px;
 }

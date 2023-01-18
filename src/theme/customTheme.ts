@@ -12,5 +12,14 @@ export const customTheme: ThemeOptions = createTheme({
             paper: 'rgb(31,31,33)',
             default: 'rgb(31,31,33)'
         }
-    }
+    },
+      components: {
+        MuiCssBaseline: {
+          styleOverrides: (themeParam) => `
+            div {
+                width: 100%;
+            }
+          `,
+        },
+      },
 })

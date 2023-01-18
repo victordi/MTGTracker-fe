@@ -88,6 +88,12 @@ export default function SeasonDetails(): ReactElement {
     return (
         <div>
             <h1>Season {id}</h1>
+            {season.players.map((player) =>
+                <h2 key={player.first}>{player.first} with {player.second} points.</h2>
+            )}
+            <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
+            <br />
+            <br />
             <Link style={navStyle} to={`/seasons/${id}/games`}>
                 <Button variant="contained">View Games</Button>
             </Link>
@@ -96,12 +102,7 @@ export default function SeasonDetails(): ReactElement {
             <Link style={navStyle} to={`/seasons/${id}/reportGame`}>
                 <Button variant="contained">Report Game Result</Button>
             </Link>
-            <br/>
-            <br/>
-            <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
-            {season.players.map((player) =>
-                <h2 key={player.first}>{player.first} with {player.second} points.</h2>
-            )}
+            <br />
             {StatsTable(prepareStats())}
         </div>
     )

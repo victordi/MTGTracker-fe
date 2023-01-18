@@ -1,4 +1,4 @@
-export const API_URL = "http://localhost:8085/" as const;
+export const API_URL = "http://mtg-tracker.duckdns.org:8085/" as const;
 export const AT_STORAGE = "AT_HEADER" as const;
 
 export const navStyle = {
