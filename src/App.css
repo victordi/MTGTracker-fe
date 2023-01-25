@@ -60,6 +60,9 @@ textarea {
   position: absolute;
   bottom: 0;
   left: 0;
+  height: 40%;
+  font-size: calc(2px + 2vmin);
+  width: 100%;
 }
 
 img {

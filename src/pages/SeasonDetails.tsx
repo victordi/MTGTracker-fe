@@ -4,7 +4,7 @@ import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import {API_URL, navStyle, refreshLogin} from "../constants";
 import AuthService from "../service/auth-service";
-import {Button} from "@mui/material";
+import {Button, Stack} from "@mui/material";
 import StatsTable, {SeasonStats, StatsRow, toStatsRow} from "../components/StatsTable";
 import {useConfirm} from "material-ui-confirm";
 
@@ -91,18 +91,15 @@ export default function SeasonDetails(): ReactElement {
             {season.players.map((player) =>
                 <h2 key={player.first}>{player.first} with {player.second} points.</h2>
             )}
-            <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
-            <br />
-            <br />
-            <Link style={navStyle} to={`/seasons/${id}/games`}>
-                <Button variant="contained">View Games</Button>
-            </Link>
-            <br/>
-            <br/>
-            <Link style={navStyle} to={`/seasons/${id}/reportGame`}>
-                <Button variant="contained">Report Game Result</Button>
-            </Link>
-            <br />
+            <Stack direction="row" spacing={8}>
+                <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
+                <Link style={navStyle} to={`/seasons/${id}/games`}>
+                    <Button variant="contained">View Games</Button>
+                </Link>
+                <Link style={navStyle} to={`/seasons/${id}/reportGame`}>
+                    <Button variant="contained">Report Game Result</Button>
+                </Link>
+            </Stack>
             {StatsTable(prepareStats())}
         </div>
     )
