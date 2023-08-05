@@ -1,5 +1,6 @@
 import React, {ReactElement, useEffect, useState} from 'react';
 import '../App.css'
+import Tabs from '../components/Tabs';
 import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import {API_URL, navStyle, refreshLogin} from "../constants";
@@ -24,6 +25,13 @@ export default function SeasonDetails(): ReactElement {
 
     const [season, setSeason] = useState<Season>({id: 0, players: []});
     const [seasonStats, setSeasonStats] = useState<SeasonStats>([])
+    const [activeTab, setActiveTab] = useState<string>('Season Info');
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+    };
+
+    const tabs = ['Season Info', 'Season Stats'];
 
     const fetchSeason = async () => {
         const data: Season = await axios.get(
@@ -87,20 +95,25 @@ export default function SeasonDetails(): ReactElement {
 
     return (
         <div>
-            <h1>Season {id}</h1>
-            {season.players.map((player) =>
-                <h2 key={player.first}>{player.first} with {player.second} points.</h2>
+            <Tabs activeTab={activeTab} tabs={tabs} onTabChange={handleTabChange} />
+            {activeTab === 'Season Info' && (
+                <div>
+                    <h1>Season {id}</h1>
+                    {season.players.map((player) =>
+                        <h2 key={player.first}>{player.first} with {player.second} points.</h2>
+                    )}
+                    <Stack direction="row" spacing={8}>
+                        <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
+                        <Link style={navStyle} to={`/seasons/${id}/games`}>
+                            <Button variant="contained">View Games</Button>
+                        </Link>
+                        <Link style={navStyle} to={`/seasons/${id}/reportGame`}>
+                            <Button variant="contained">Report Game Result</Button>
+                        </Link>
+                    </Stack>
+                </div>
             )}
-            <Stack direction="row" spacing={8}>
-                <Button variant="contained" onClick={deleteSeason}>Delete Season</Button>
-                <Link style={navStyle} to={`/seasons/${id}/games`}>
-                    <Button variant="contained">View Games</Button>
-                </Link>
-                <Link style={navStyle} to={`/seasons/${id}/reportGame`}>
-                    <Button variant="contained">Report Game Result</Button>
-                </Link>
-            </Stack>
-            {StatsTable(prepareStats())}
+            {activeTab === 'Season Stats' && (<StatsTable stats={prepareStats()}/>)}
         </div>
     )
 }

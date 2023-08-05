@@ -1,4 +1,4 @@
-import React, {ReactElement} from "react";
+import React from "react";
 import {Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow} from "@mui/material";
 
 export type Stats = {
@@ -80,7 +80,11 @@ const columns: readonly Column[] = [
     {id: 'avgCommanderKills', label: 'avg. CKills', format: (value: number) => value.toFixed(3)}
 ];
 
-export default function StatsTable(stats: StatsRow[]): ReactElement {
+type StatsTableProps = {
+  stats: StatsRow[];
+};
+
+const StatsTable: React.FC<StatsTableProps> = ({ stats }) => {
     const [page, setPage] = React.useState(0);
     const rowsPerPage = 10
 
@@ -89,7 +93,7 @@ export default function StatsTable(stats: StatsRow[]): ReactElement {
     };
 
     return (
-        <div id="bottom-div">
+        <div>
             <br/>
             <Paper sx={{width: '100%', overflow: 'hidden'}}>
                 <TableContainer sx={{maxHeight: 840}}>
@@ -143,3 +147,5 @@ export default function StatsTable(stats: StatsRow[]): ReactElement {
         </div>
     )
 }
+
+export default StatsTable;

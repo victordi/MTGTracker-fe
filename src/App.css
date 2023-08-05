@@ -70,3 +70,24 @@ img {
     margin: 1000px;
     padding: 0px;
 }
+
+.tabs-container {
+  display: flex;
+  justify-content: space-evenly;
+  padding: 10px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  font-size: 26px;
+  color: #333;
+  background-color: transparent;
+  border: inline;
+  cursor: pointer;
+  transition: color 0.2s, border-bottom-color 0.2s;
+}
+
+.tab-btn.active {
+
+  color: #007bff;
+}

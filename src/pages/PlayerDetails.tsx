@@ -1,5 +1,6 @@
 import React, {ReactElement, useEffect, useState} from 'react';
 import '../App.css'
+import Tabs from '../components/Tabs';
 import {Link, useNavigate, useParams} from "react-router-dom";
 import axios from "axios";
 import {API_URL, navStyle, refreshLogin} from "../constants";
@@ -37,6 +38,13 @@ export default function PlayerDetails(): ReactElement {
         statsPerSeason: []
     });
     const [seasons, setSeasons] = useState<number[]>([]);
+    const [activeTab, setActiveTab] = useState<string>('Player Info');
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+    };
+
+    const tabs = ['Player Info', 'Player Stats'];
 
     const fetchSeasons = async () => {
         const data: { id: number }[] = await axios.get(
@@ -191,30 +199,39 @@ export default function PlayerDetails(): ReactElement {
 
     return (
         <div>
-            <Stack spacing={4}>
-                <h1>{player.name}</h1>
-                {player.decks.map((deck) =>
-                    <h6 key={`stack${deck.name}`}>
-                        <Stack key={`stack${deck.name}`} direction="row" spacing={1}>
-                            <h2>{deck.name} with tier {deck.tier}</h2>
-                            <Button variant="contained" onClick={() => promote(deck)}>Promote</Button>
-                            <Button variant="contained" onClick={() => demote(deck)}>Demote</Button>
-                            <Button variant="contained" onClick={() => remove(deck.name)}>Delete</Button>
-                        </Stack>
-                    </h6>
-                )}
-            </Stack>
-            <br/>
-            <br/>
-            <br/>
-            <Stack direction="row" spacing={8}>
-                <Link style={navStyle} to={`/players/${name}/createDeck`}>
-                    <Button variant="contained">Create Deck</Button>
-                </Link>
-                <Button variant="contained" onClick={removePlayer}>Delete Player</Button>
-            </Stack>
-            <br/>
-            {StatsTable(prepareStats())}
+            <Tabs activeTab={activeTab} tabs={tabs} onTabChange={handleTabChange} />
+            {activeTab === 'Player Info' && (
+                <div>
+                    <Stack spacing={4}>
+                        <h1>{player.name}</h1>
+                        {player.decks.map((deck) =>
+                            <h6 key={`stack${deck.name}`}>
+                                <Stack key={`stack${deck.name}`} direction="row" spacing={1}>
+                                    <h2>{deck.name} with tier {deck.tier}</h2>
+                                    <Button variant="contained" onClick={() => promote(deck)}>Promote</Button>
+                                    <Button variant="contained" onClick={() => demote(deck)}>Demote</Button>
+                                    <Button variant="contained" onClick={() => remove(deck.name)}>Delete</Button>
+                                </Stack>
+                            </h6>
+                        )}
+                    </Stack>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <Stack direction="row" spacing={8}>
+                        <Link style={navStyle} to={`/players/${name}/createDeck`}>
+                            <Button variant="contained">Create Deck</Button>
+                        </Link>
+                        <Button variant="contained" onClick={removePlayer}>Delete Player</Button>
+                    </Stack>
+                    <br/>
+                </div>
+            )}
+            {activeTab === 'Player Stats' && (
+                <div>
+                    <StatsTable stats={prepareStats()}/>
+                </div>
+            )}
         </div>
     )
 }
