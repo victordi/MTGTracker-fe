@@ -1,6 +1,8 @@
 import axios from "axios";
 import {API_URL, AT_STORAGE} from "../constants";
 
+axios.defaults.timeout = 1000;
+
 class AuthService {
     login(username: string, password: string) {
         return axios
