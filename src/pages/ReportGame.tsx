@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, ReactElement, useEffect, useState } from "react";
+import React, { FormEvent, ReactElement, useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL, refreshLogin } from "../constants";
 import AuthService from "../service/auth-service";
@@ -23,21 +23,25 @@ interface Player {
   decks: object[];
 };
 
+interface GameData {
+  playerName: string;
+  deckName: string;
+  place: number;
+  startOrder: number;
+  kills: number;
+  commanderKills: number;
+  infinite: boolean;
+  bodyGuard: number;
+  penalty: number;
+};
+
 interface FormValues {
-  playerNames: string[];
-  deckNames: string[];
-  places: number[];
-  startOrders: number[];
-  kills: number[];
-  commanderKills: number[];
-  infinite: boolean[];
-  bodyGuards: number[];
-  penalties: number[];
+  games: GameData[]
 };
 
 interface RadioGroupFieldProps {
   label: string;
-  name: keyof FormValues;
+  name: keyof GameData;
   options: number[];
   value: number;
   index: number;
@@ -47,15 +51,17 @@ export default function ReportGame(): ReactElement {
   const { id } = useParams();
 
   const initialValues: FormValues = {
-    playerNames: ["", "", "", ""],
-    deckNames: ["", "", "", ""],
-    places: [1, 2, 3, 4],
-    startOrders: [1, 2, 3, 4],
-    kills: [0, 0, 0, 0],
-    commanderKills: [0, 0, 0, 0],
-    infinite: [false, false, false, false],
-    bodyGuards: [0, 0, 0, 0],
-    penalties: [0, 0, 0, 0]
+    games: Array(4).fill(null).map(() => ({
+      playerName: '',
+      deckName: '',
+      place: 1,
+      startOrder: 1,
+      kills: 0,
+      commanderKills: 0,
+      infinite: false,
+      bodyGuard: 0,
+      penalty: 0,
+    })),
   };
 
   useEffect(() => {
@@ -72,26 +78,16 @@ export default function ReportGame(): ReactElement {
   const handleNext = async () => {
     if (currentPage === "select-players") {
       // Fetch decks for each selected player
-      for (let i = 0; i < 4; i++) {
-        const playerName = formValues.playerNames[i];
-        const decksForPlayer = await fetchDecks(playerName);
-
-        // Update the decks state
+      const deckFetchPromises = formValues.games.map(game => fetchDecks(game.playerName));
+      const decksForAllPlayers = await Promise.all(deckFetchPromises);
+      decksForAllPlayers.forEach((decks, index) => {
         setDecks((prevDecks) => {
           const newDecks = [...prevDecks];
-          newDecks[i] = decksForPlayer;
+          newDecks[index] = decks;
           return newDecks;
         });
-
-        setFormValues(formValues => ({
-          ...formValues,
-          deckNames: [
-            ...formValues.deckNames.slice(0, i),
-            decksForPlayer[0],
-            ...formValues.deckNames.slice(i + 1)
-          ]
-        }));
-      }
+        updateFormValues(index, 'deckName', decks[0])
+      })
 
       // Update the page state and navigate to the next page
       setCurrentPage("select-decks");
@@ -107,17 +103,7 @@ export default function ReportGame(): ReactElement {
     // Handle the submit logic for each game entry
     const addedGames: number[] = []
     for (let i = 0; i < 4; i++) {
-      const gameEntry = {
-        playerName: formValues.playerNames[i],
-        deckName: formValues.deckNames[i],
-        place: formValues.places[i],
-        startOrder: formValues.startOrders[i],
-        kills: formValues.kills[i],
-        commanderKills: formValues.commanderKills[i],
-        infinite: formValues.infinite[i],
-        bodyGuard: formValues.bodyGuards[i],
-        penalty: formValues.penalties[i]
-      };
+      const gameEntry = formValues.games[i]
 
       const failed: boolean = await axios.post(
         API_URL + `seasons/${id}/results`,
@@ -155,6 +141,18 @@ export default function ReportGame(): ReactElement {
     navigation(`/seasons/${id}`);
   };
 
+  const updateFormValues = (idx: number, label: keyof GameData, value: number | string | boolean) => {
+    setFormValues(prevFormValues => {
+      const updatedGames = prevFormValues.games.map((game, index) => {
+        if (index === idx) {
+          return { ...game, [label]: value };
+        }
+        return game;
+      });
+      return { ...prevFormValues, games: updatedGames };
+      });
+  };
+
   const fetchPlayers = async () => {
     const data: Player[] = await axios.get(
       API_URL + "players",
@@ -168,10 +166,9 @@ export default function ReportGame(): ReactElement {
       .catch((reason) => { if (reason.response.status === 401) refreshLogin() });
 
     setPlayers(data.map((player) => player.name));
-    setFormValues(formValues => ({
-      ...formValues,
-      playerNames: [data[0].name, data[1].name, data[2].name, data[3].name]
-    }));
+    data.forEach((player, index) => {
+      updateFormValues(index, 'playerName', player.name)
+    })
   };
 
   const fetchDecks = async (playerName: string) => {
@@ -196,14 +193,6 @@ export default function ReportGame(): ReactElement {
     value,
     index,
   }: RadioGroupFieldProps): ReactElement => {
-    const handleRadioChange = (event: ChangeEvent<HTMLInputElement>) => {
-      const updatedValue = parseInt(event.target.value, 10) || 0;
-      setFormValues(prevFormValues => ({
-        ...prevFormValues,
-        [name]: prevFormValues[name].map((val, idx) => idx === index ? updatedValue : val)
-      }));
-    };
-
     return (
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <FormLabel component="legend" style={{ width: '100px', marginRight: '20px' }}>
@@ -214,7 +203,7 @@ export default function ReportGame(): ReactElement {
           aria-label={label}
           name={`${name}${index}`}
           value={value.toString()}
-          onChange={handleRadioChange}
+          onChange={(e) => updateFormValues(index, name, parseInt(e.target.value, 10) || 0)}
         >
           {options.map((option) => (
             <FormControlLabel
@@ -243,15 +232,8 @@ export default function ReportGame(): ReactElement {
                     labelId={`player${index + 1}`}
                     id={`player${index + 1}`}
                     name="playerNames"
-                    value={formValues.playerNames[index]}
-                    onChange={(e) => setFormValues({
-                       ...formValues,
-                       playerNames: [
-                         ...formValues.playerNames.slice(0, index),
-                         e.target.value,
-                         ...formValues.playerNames.slice(index + 1)
-                       ]
-                     })}
+                    value={formValues.games[index].playerName}
+                    onChange={(e) => updateFormValues(index, 'playerName', e.target.value)}
                     label={`Player ${index + 1}`}
                   >
                     {players.map((player) => (
@@ -275,21 +257,14 @@ export default function ReportGame(): ReactElement {
             {[0, 1, 2, 3].map((index) => (
               <div key={index}>
                 <FormControl>
-                  <InputLabel id={`deck${index}`}>{`${formValues.playerNames[index]}\`s Deck`}</InputLabel>
+                  <InputLabel id={`deck${index}`}>{`${formValues.games[index].playerName}\`s Deck`}</InputLabel>
                   <Select
                     labelId={`deck${index}`}
                     id={`deck${index}`}
                     name="deckNames"
-                    value={formValues.deckNames[index]}
-                    onChange={(e) => setFormValues({
-                      ...formValues,
-                      deckNames: [
-                        ...formValues.deckNames.slice(0, index),
-                        e.target.value,
-                        ...formValues.deckNames.slice(index + 1)
-                      ]
-                    })}
-                    label={`${formValues.playerNames[index]}\`s Deck`}
+                    value={formValues.games[index].deckName}
+                    onChange={(e) => updateFormValues(index, 'deckName', e.target.value)}
+                    label={`${formValues.games[index].playerName}\`s Deck`}
                   >
                     {decks[index].map((deck) => (
                       <MenuItem key={deck} value={deck}>{deck}</MenuItem>
@@ -311,21 +286,21 @@ export default function ReportGame(): ReactElement {
           <div>
             {[0, 1, 2, 3].map((index) => (
               <div key={index}>
-                <h1>{formValues.playerNames[index]}</h1>
+                <h1>{formValues.games[index].playerName}</h1>
 
                 <RadioGroupField
                   label="Place"
-                  name="places"
+                  name="place"
                   options={[1, 2, 3, 4]}
-                  value={formValues.places[index]}
+                  value={formValues.games[index].place}
                   index={index}
                 />
 
                 <RadioGroupField
                   label="Order"
-                  name="startOrders"
+                  name="startOrder"
                   options={[1, 2, 3, 4]}
-                  value={formValues.startOrders[index]}
+                  value={formValues.games[index].startOrder}
                   index={index}
                 />
 
@@ -333,7 +308,7 @@ export default function ReportGame(): ReactElement {
                   label="Kills"
                   name="kills"
                   options={[0, 1, 2, 3]}
-                  value={formValues.kills[index]}
+                  value={formValues.games[index].kills}
                   index={index}
                 />
 
@@ -341,15 +316,15 @@ export default function ReportGame(): ReactElement {
                   label="Commander Kills"
                   name="commanderKills"
                   options={[0, 1, 2, 3]}
-                  value={formValues.commanderKills[index]}
+                  value={formValues.games[index].commanderKills}
                   index={index}
                 />
 
                 <RadioGroupField
                   label="Bodyguard"
-                  name="bodyGuards"
+                  name="bodyGuard"
                   options={[0, 1, 2, 3]}
-                  value={formValues.bodyGuards[index]}
+                  value={formValues.games[index].bodyGuard}
                   index={index}
                 />
 
@@ -357,15 +332,8 @@ export default function ReportGame(): ReactElement {
                 <FormControlLabel
                   control={
                     <Switch
-                      checked={formValues.infinite[index]}
-                      onChange={(e) => setFormValues({
-                        ...formValues,
-                        infinite: [
-                          ...formValues.infinite.slice(0, index),
-                          e.target.checked,
-                          ...formValues.infinite.slice(index + 1)
-                        ]
-                      })}
+                      checked={formValues.games[index].infinite}
+                      onChange={(e) => updateFormValues(index, 'infinite', e.target.checked)}
                     />
                   }
                   label={`Infinite Combo`}
@@ -375,15 +343,8 @@ export default function ReportGame(): ReactElement {
                 <TextField
                   label={`Penalties`}
                   type="number"
-                  value={formValues.penalties[index]}
-                  onChange={(e) => setFormValues({
-                    ...formValues,
-                    penalties: [
-                      ...formValues.penalties.slice(0, index),
-                      parseInt(e.target.value, 10) || 0,
-                      ...formValues.penalties.slice(index + 1)
-                    ]
-                  })}
+                  value={formValues.games[index].penalty}
+                  onChange={(e) => updateFormValues(index, 'penalty', parseInt(e.target.value, 10) || 0)}
                 />
               </div>
 
