@@ -1,6 +1,6 @@
 import {Navigate} from "react-router-dom";
 import AuthService from "../service/auth-service";
-import React from "react";
+import React, { JSX } from "react";
 
 export type PrivateRouteProps = {
     outlet: JSX.Element;
